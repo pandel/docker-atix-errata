@@ -1,0 +1,9 @@
+.env
+scheduler-error-logs
+temp/*
+errata_data/*
+!temp/.gitkeep
+!errata_data/.gitkeep
+config.json
+compose.yml
+

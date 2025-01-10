@@ -1,0 +1,44 @@
+services:
+  errata_server:
+    image: errata_server:latest
+    volumes:
+      - ./errata_data:/srv/errata:ro
+    container_name: errata_server
+    ports:
+      - 80:8015
+    restart: unless-stopped
+
+  errata_parser:
+    image: errata_parser:latest
+    volumes:
+      - ./errata_data:/errata
+      - ./temp:/tmp/errata_parser
+      - ./config.json:/errata/config.json
+    env_file:
+      - .env
+    entrypoint: /bin/sh
+    command: [ "-c", "echo Errata_parser container running...; bundle exec errata_parser.rb --config /errata/config.json --ubuntu /errata/ --ubuntu-esm /errata/ --metadata; while true; do sleep 1; done" ]
+    healthcheck:
+      test: exit 0
+      interval: 60s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    labels:
+      ofelia.enabled: true
+      ofelia.job-exec.datecron.schedule: ${ERRATA_PARSER_SCHEDULE:-@daily}
+      ofelia.job-exec.datecron.command: "bundle exec errata_parser.rb --config /errata/config.json --ubuntu /errata/ --ubuntu /errata/ --metadata"
+
+  scheduler:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      errata_parser:
+        condition: service_healthy
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PWD}/scheduler-error-logs:/reports
+    labels:
+      ofelia.save: true
+      ofelia.save-only-on-error: true
+      ofelia.save-folder: /reports
