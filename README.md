@@ -1,10 +1,34 @@
-Docker compose for ATIX AG Errata Server and Parser
-=========================================================
+Docker compose for ATIX AG errata_server and errata_parser
+---------------------------------------------
 
 ------
 
-How to start everything:
----------------
+### Prerequisites:
+
+Install the latest Docker release to your server.
+
+Get the source code for ATIX AG [`errata_server`](https://github.com/ATIX-AG/errata_server) and [`errata_parser`](https://github.com/ATIX-AG/errata_parser) and build the Docker images according to their description.
+In short:
+
+```bash
+# Build errata_parser image
+git clone https://github.com/ATIX-AG/errata_parser
+cd errata_parser
+docker build -t errata_parser:latest .
+cd ..
+
+# Build errata_server image
+git clone https://github.com/ATIX-AG/errata_server
+cd errata_server
+docker build -t errata_server:latest .
+cd ..
+
+# Now clone this repository here
+git clone https://github.com/pandel/docker-atix-errata
+cd docker-atix-errata
+```
+
+### How to start everything:
 
 1. Copy `env-example` to `.env`
 2. (Optional) Adjust errata_parser schedule in `.env`, see [ofelia documentation](https://github.com/mcuadros/ofelia) for more information
